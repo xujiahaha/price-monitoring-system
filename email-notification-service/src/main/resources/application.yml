@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: email-notification-service
+
+  jpa:
+      hibernate:
+        ddl-auto: update
+
+  datasource:
+      url: jdbc:mysql://localhost:3306/amazon_price_monitoring_db?verifyServerCertificate=false&useSSL=false&requireSSL=false
+      username: username
+      password: password
+      driver-class-name: com.mysql.jdbc.Driver
+
+server:
+  port: 9001
+

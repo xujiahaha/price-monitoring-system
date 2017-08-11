@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: product-crawler
+
+  jpa:
+      hibernate:
+        ddl-auto: update
+
+  datasource:
+      url: jdbc:mysql://localhost:3306/amazon_price_monitoring_db?verifyServerCertificate=false&useSSL=false&requireSSL=false
+      username: root
+      password: xidianxujia1991
+      driver-class-name: com.mysql.jdbc.Driver
