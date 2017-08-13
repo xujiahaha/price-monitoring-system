@@ -11,10 +11,6 @@ public interface ProductCacheService {
 
     double getCachedProductPrice(String productId);
 
-    /*
-    * key = detailUrl, value = productId + "#" + price
-    * eg. "124#12.99"
-    **/
     void cacheProductPrice(String productId, double price);
 
     void updateCachedProductPrice(String productId, double price);

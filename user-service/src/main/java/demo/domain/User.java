@@ -25,28 +25,17 @@ public class User {
     private String username;
     @NonNull
     private String email;
-    private boolean emailNotification;
     private long creationTime;
-    private long lastUpdateTime;
     private long lastNotifyTime;
-
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = "user_category",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id", referencedColumnName = "id"))
-    private Set<Category> categories;
 
     public User() {
     }
 
     @JsonCreator
-    public User(@JsonProperty("email") String email,
-                @JsonProperty("emailNotification") Boolean emailNotification) {
+    public User(@JsonProperty("email") String email) {
         this.email = email;
         this.username = getUsernameFromEmail(email);
-        this.emailNotification = emailNotification;
         this.creationTime = System.currentTimeMillis();
-        this.lastUpdateTime = System.currentTimeMillis();
     }
 
     private String getUsernameFromEmail(String email) {

@@ -2,6 +2,7 @@ package demo.domain;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
 @Table(name = "user", indexes = {@Index(name = "email_index",  columnList="email", unique = true)})
 public class User {
 
@@ -30,16 +32,6 @@ public class User {
     private long lastNotifyTime;
 
     public User() {
-    }
-
-    @JsonCreator
-    public User(@JsonProperty("email") String email,
-                @JsonProperty("emailNotification") Boolean emailNotification) {
-        this.email = email;
-        this.username = getUsernameFromEmail(email);
-        this.emailNotification = emailNotification;
-        this.creationTime = System.currentTimeMillis();
-        this.lastUpdateTime = System.currentTimeMillis();
     }
 
     private String getUsernameFromEmail(String email) {

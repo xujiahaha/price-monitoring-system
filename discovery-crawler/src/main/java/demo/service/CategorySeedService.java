@@ -9,5 +9,5 @@ public interface CategorySeedService {
 
     void saveCategorySeed(CategorySeed categorySeed);
 
-    void updateCategoryUserCount();
+    void updateCategoryPriority();
 }

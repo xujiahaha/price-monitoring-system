@@ -8,9 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * Created by jiaxu on 8/4/17.
- */
+
 @Service
 public class CategorySeedServiceImpl implements CategorySeedService {
 
@@ -31,4 +29,10 @@ public class CategorySeedServiceImpl implements CategorySeedService {
     public List<CategorySeed> getAllCategorySeeds() {
         return this.categorySeedRepository.findAll();
     }
+
+    @Override
+    public List<CategorySeed> getCategoryByPriority(int priority) {
+        return this.categorySeedRepository.findByPriority(priority);
+    }
+
 }

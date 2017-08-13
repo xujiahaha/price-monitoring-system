@@ -1,7 +1,7 @@
 package demo;
 
 import demo.config.DealSenderConfig;
-import demo.model.DealInfo;
+import demo.dto.DealInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +24,8 @@ public class DealSender {
         this.rabbitTemplate = dealSenderConfig.rabbitTemplate();
     }
 
-    public void sendDealToPriceReducedQueue(DealInfo dealInfo) {
+    public void sendDealToPriceReducedQueue(String routingKey, DealInfo dealInfo) {
         log.debug("sending deals to price reduced queue...");
-        this.rabbitTemplate.convertAndSend("price.reduced", dealInfo);
+        this.rabbitTemplate.convertAndSend(routingKey, dealInfo);
     }
 }

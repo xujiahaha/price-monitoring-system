@@ -1,58 +1,50 @@
 package demo.task;
 
-import demo.ProductSender;
-import demo.domain.CategorySeed;
+import demo.model.CategorySeed;
+import demo.service.ProductSendService;
 import demo.model.ProductInfo;
-import demo.service.CategorySeedService;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import javax.print.DocFlavor;
 import java.io.*;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.net.URLDecoder;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by jiaxu on 8/5/17.
  */
-@Component
-public class ProductCrawler {
+@Data
+@Slf4j
+public class ProductCrawler implements Runnable{
+
+    private long id;
 
     private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36";
-    private final String AUTH_USER = "bittiger";
-    private final String AUTH_PASSWORD = "cs504";
-    private static final int CRAWLER_TIMEOUT = 80000; // in ms
+    private static final int CRAWLER_TIMEOUT = 10000; // in ms
     private List<String> proxyList;
-    private String PROXY_FILE_PATH = "proxylist.txt";
-    private static final int MAX_PAGE_OF_PRODUCT = 2;
+    private static final int MAX_PAGE_OF_PRODUCT = 5;
 
-    private CategorySeedService categorySeedService;
-    private ProductSender productSender;
+    private ProductSendService productSendService;
+    private CategorySeed categorySeed;
+    AtomicInteger proxyIndex;
 
-    @Autowired
-    public ProductCrawler(CategorySeedService categorySeedService, ProductSender productSender) {
-        this.categorySeedService = categorySeedService;
-        this.productSender = productSender;
+    public ProductCrawler(CategorySeed categorySeed) {
+        this.categorySeed = categorySeed;
     }
 
-    public void init() {
-        initProxyList(PROXY_FILE_PATH);
-        testProxy();
+    @Override
+    public void run() {
+        this.crawling(categorySeed);
     }
 
     private static final String[] TITLE_SELECTORS = {
             "#result_{INDEX} > div > div > div > div.a-fixed-left-grid-col.a-col-right > div.a-row.a-spacing-small > div:nth-child(1) > a",
             "#result_{INDEX} > div > div:nth-child(3) > div.a-row.a-spacing-none.a-spacing-top-mini > a"
-    };
-
-    private static final String[] PRICE_SELECTORS = {
-           "#result_{INDEX} > div > div.a-row.a-spacing-top-small > div:nth-child(2) > a > span"
     };
 
     private static final String[] THUMBNAIL_SELECTORS_1= {
@@ -65,17 +57,16 @@ public class ProductCrawler {
     };
 
 
-
-    public void crawling(int categoryId) {
-        setProxyHost();
+    private void crawling(CategorySeed categorySeed) {
         Map<String, String> headers = getHeaders();
-        CategorySeed seed = this.categorySeedService.getSeedByCategoryId(categoryId);
-        String productListUrl = seed.getProductListUrl();
-        for(int pageNum = 2; pageNum <= MAX_PAGE_OF_PRODUCT; pageNum++) {
+        String productListUrl = categorySeed.getProductListUrl();
+        log.info("Thread {} is crawling {} category", Thread.currentThread().getName(), categorySeed.getCategoryTitle());
+        for(int pageNum = 1; pageNum <= MAX_PAGE_OF_PRODUCT; pageNum++) {
             String url = productListUrl + "&page=" + pageNum;
             System.out.println("url: " + url);
             try {
-                Document doc = Jsoup.connect(url).maxBodySize(0).headers(headers).userAgent(USER_AGENT).timeout(CRAWLER_TIMEOUT).get();
+                setProxyHost();
+                Document doc =Jsoup.connect(url).headers(headers).userAgent(USER_AGENT).maxBodySize(0).timeout(CRAWLER_TIMEOUT).get();
                 if(doc == null) {
                     // log failure
                     continue;
@@ -89,7 +80,7 @@ public class ProductCrawler {
                 // get first result index in current page.
                 String id = prods.first().attr("id");
                 int startIndex = Integer.parseInt(id.substring(7));
-                System.out.println("index starts from "+ startIndex);
+//                System.out.println("index starts from "+ startIndex);
 
                 for(int i = 0; i < prods.size(); i++) {
                     int index = startIndex + i;
@@ -130,7 +121,7 @@ public class ProductCrawler {
                     }
 
 
-                    ProductInfo productInfo = new ProductInfo(seed.getCategoryId());
+                    ProductInfo productInfo = new ProductInfo(categorySeed.getCategoryId());
                     productInfo.setProductId(asin);
                     productInfo.setTitle(title);
                     productInfo.setPrice(price);
@@ -139,10 +130,12 @@ public class ProductCrawler {
                     productInfo.setBrand(getBrand(doc, index));
 
                     // send productMsg to category based queue
-                    this.productSender.sendProdToQueue(seed.getSearchAlias(), productInfo);
+                    this.productSendService.sendProdToQueue(categorySeed.getSearchAlias(), productInfo);
                 }
-
+                Thread.sleep(3000);
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
@@ -194,10 +187,16 @@ public class ProductCrawler {
     private double getPrice(Document doc, int index) {
         String id = "result_" + index;
         Element prod = doc.getElementById(id);
-        Element priceWholeEle = prod.getElementsByClass("sx-price-whole").first();
-        Element priceFractionalEle = prod.getElementsByClass("sx-price-fractional").first();
-        if(priceWholeEle != null && priceFractionalEle != null) {
-            String priceStr = priceWholeEle.text().replace(",", "")+"."+priceFractionalEle.text();
+        Element priceWholeEle = prod.getElementsByClass("a-price-whole").first();
+        Element priceFracEle = prod.getElementsByClass("a-price-fraction").first();
+        if(priceWholeEle == null || priceFracEle == null) {
+            priceWholeEle = prod.getElementsByClass("sx-price-whole").first();
+            priceFracEle = prod.getElementsByClass("sx-price-fractional").first();
+        }
+        if(priceWholeEle != null && priceFracEle != null) {
+            String priceWholeStr = priceWholeEle.text().replace(".", "").replace(",", "");
+            String priceFracStr = priceFracEle.text();
+            String priceStr = priceWholeStr+"."+priceFracStr;
             return Double.parseDouble(priceStr);
         } else {
             return 0;
@@ -244,50 +243,14 @@ public class ProductCrawler {
         }
     }
 
-    public void initProxyList(String proxyFilePath) {
-        proxyList = new ArrayList<String>();
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(proxyFilePath));
-            String line;
-            while((line = reader.readLine()) != null) {
-                proxyList.add(line.split(",")[0]);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.setProperty("socksProxyPort", "61336"); // set socks proxy port
-        System.setProperty("http.proxyUser", AUTH_USER);
-        System.setProperty("http.proxyPassword", AUTH_PASSWORD);
-        Authenticator.setDefault(
-                new Authenticator() {
-                    @Override
-                    public PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(
-                                AUTH_USER, AUTH_PASSWORD.toCharArray());
-                    }
-                }
-        );
-    }
-
-    public void setProxyHost() {
-        Random rand = new Random();
-        System.setProperty("socksProxyHost", proxyList.get(rand.nextInt(proxyList.size()))); // set socks proxy server
-    }
-
-    public void testProxy() {
-
-        String test_url = "http://www.toolsvoid.com/what-is-my-ip-address";
-        try {
-            HashMap<String,String> headers = new HashMap<String,String>();
-            headers.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-            headers.put("Accept-Language", "en-US,en;q=0.8");
-            Document doc = Jsoup.connect(test_url).headers(headers).userAgent(USER_AGENT).timeout(CRAWLER_TIMEOUT).get();
-            String iP = doc.select("body > section.articles-section > div > div > div > div.col-md-8.display-flex > div > div.table-responsive > table > tbody > tr:nth-child(1) > td:nth-child(2) > strong").first().text(); //get used IP.
-            System.out.println("IP-Address: " + iP);
-        } catch (IOException e) {
-            e.printStackTrace();
+    private void setProxyHost() {
+//        Random rand = new Random();
+//        System.setProperty("socksProxyHost", proxyList.get(rand.nextInt(proxyList.size()))); // set socks proxy server
+        System.setProperty("socksProxyHost", proxyList.get(proxyIndex.get()));
+        if (proxyIndex.get() == proxyList.size() - 1) {
+            proxyIndex.set(0);
+        } else {
+            proxyIndex.incrementAndGet();
         }
     }
 

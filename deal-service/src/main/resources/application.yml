@@ -16,5 +16,5 @@ spring:
       driver-class-name: com.mysql.jdbc.Driver
 
 server:
-  port: 9090
+  port: 9002
 

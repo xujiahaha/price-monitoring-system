@@ -14,6 +14,7 @@
         <module>discovery-crawler</module>
         <module>email-notification-service</module>
         <module>deal-service</module>
+        <module>product-crawler-scheduler</module>
     </modules>
     <packaging>pom</packaging>
 

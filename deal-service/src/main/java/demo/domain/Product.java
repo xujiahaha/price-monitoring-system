@@ -15,9 +15,6 @@ import javax.persistence.*;
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
     private String productId;
     private int categoryId; // for now, don't consider the case that one product belongs to multiple categories.
     private String title;

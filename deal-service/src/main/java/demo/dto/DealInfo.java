@@ -10,6 +10,7 @@ import lombok.Data;
 public class DealInfo {
 
     private String title;
+    private int categoryId;
     private String brand;
     private String detailUrl;
     private String thumbnail;
@@ -22,6 +23,7 @@ public class DealInfo {
 
     public DealInfo(Product product) {
         this.title = product.getTitle();
+        this.categoryId = product.getCategoryId();
         this.brand = product.getBrand();
         this.detailUrl = product.getDetailUrl();
         this.thumbnail = product.getThumbnail();

@@ -1,6 +1,6 @@
 package demo.service;
 
-import demo.model.ProductInfo;
+import demo.dto.ProductInfo;
 import demo.domain.Product;
 
 /**
@@ -10,7 +10,7 @@ public interface ProductService {
 
     Product saveProduct(ProductInfo productInfo);
 
-    Product updateProduct(ProductInfo productInfo);
+    Product updateProduct(String productId, double price, double oldPrice);
 
     Product getProductByProductId(String productId);
 

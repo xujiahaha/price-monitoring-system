@@ -9,6 +9,6 @@ import java.util.List;
  */
 public interface UserCategoryRepository extends JpaRepository<UserCategory, Integer> {
 
-    List<UserCategory> getUserCategoriesByCategoryId(int categoryId);
+    List<UserCategory> getByCategoryId(int categoryId);
 
 }

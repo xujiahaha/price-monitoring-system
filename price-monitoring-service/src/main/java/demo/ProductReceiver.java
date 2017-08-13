@@ -1,15 +1,12 @@
 package demo;
 
 import demo.domain.Product;
-import demo.model.DealInfo;
-import demo.model.ProductInfo;
+import demo.dto.DealInfo;
+import demo.dto.ProductInfo;
 import demo.service.ProductCacheService;
 import demo.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageListener;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,24 +43,24 @@ public class ProductReceiver {
         if(isExist) {  // Existed
 
             // check if there is a change of price
-            double existedPrice = this.productCacheService.getCachedProductPrice(productId);
+            double lastPrice = this.productCacheService.getCachedProductPrice(productId);
             double latestPrice = productInfo.getPrice();
+            if(latestPrice == lastPrice) {
+                return;
+            } else {
 
-            if(latestPrice == existedPrice) return;
-            else {
                 // update cache and database
-                Product latestProduct = this.productService.updateProduct(productInfo);
+                Product latestProduct = this.productService.updateProduct(productId, latestPrice, lastPrice);
                 this.productCacheService.updateCachedProductPrice(productId, latestPrice);
 
                 // if price reduced, send deal info to price reduced queue
-                if(latestPrice < existedPrice) {
+                if(latestPrice < lastPrice) {
                     DealInfo dealInfo = new DealInfo(latestProduct);
-                    this.dealSender.sendDealToPriceReducedQueue(dealInfo);
+                    this.dealSender.sendDealToPriceReducedQueue(String.valueOf(productInfo.getCategoryId()), dealInfo);
                 }
             }
         } else {  // Not existed in database
             Product product = this.productService.saveProduct(productInfo);
-            log.debug("saved product {} to database row {}", productId, product.getId());
             this.productCacheService.cacheProductPrice(productId, productInfo.getPrice());
         }
     }

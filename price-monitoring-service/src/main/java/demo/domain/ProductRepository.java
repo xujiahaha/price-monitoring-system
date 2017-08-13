@@ -8,5 +8,5 @@ import org.springframework.data.repository.query.Param;
  */
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    Product findByProductId(@Param("productId") String productId);
+    Product getByProductId(String productId);
 }

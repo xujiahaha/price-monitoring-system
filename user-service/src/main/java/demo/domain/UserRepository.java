@@ -8,7 +8,8 @@ import org.springframework.data.repository.query.Param;
  */
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-    User findById(@Param("id") int id);
+    User getById(@Param("id") int id);
 
-    User findByEmail(@Param("email") String email);
+    User getByEmail(@Param("email") String email);
+
 }

@@ -1,6 +1,6 @@
 package demo.domain;
 
-import demo.model.ProductInfo;
+import demo.dto.ProductInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

@@ -1,6 +1,6 @@
 package demo.service.impl;
 
-import demo.model.ProductInfo;
+import demo.dto.ProductInfo;
 import demo.domain.Product;
 import demo.domain.ProductRepository;
 import demo.service.ProductService;
@@ -27,20 +27,18 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product getProductByProductId(String productId) {
-        return this.productRepository.findByProductId(productId);
+        return this.productRepository.getByProductId(productId);
     }
 
     @Override
-    public Product updateProduct(ProductInfo productInfo) {
-        Product curProduct = getProductByProductId(productInfo.getProductId());
-        curProduct.setOldPrice(curProduct.getPrice());
-        curProduct.setPrice(productInfo.getPrice());
-        curProduct.setDiscountPercent(getDiscountPercent(curProduct.getOldPrice(), curProduct.getPrice()));
-        curProduct.setLastUpdateTime(System.currentTimeMillis());
-        this.productRepository.save(curProduct);
-        return curProduct;
+    public Product updateProduct(String productId, double price, double oldPrice) {
+        Product product = getProductByProductId(productId);
+        product.setOldPrice(oldPrice);
+        product.setPrice(price);
+        product.setDiscountPercent(getDiscountPercent(product.getOldPrice(), price));
+        product.setLastUpdateTime(System.currentTimeMillis());
+        return this.productRepository.save(product);
     }
-
 
     @Override
     public double getDiscountPercent(double oldPrice, double newPrice) {

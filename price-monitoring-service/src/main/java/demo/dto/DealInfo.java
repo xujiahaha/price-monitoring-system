@@ -1,4 +1,4 @@
-package demo.model;
+package demo.dto;
 
 import demo.domain.Product;
 import lombok.Data;
@@ -9,6 +9,7 @@ import lombok.Data;
 @Data
 public class DealInfo {
 
+    private String categoryId;
     private String title;
     private String brand;
     private String detailUrl;
@@ -21,6 +22,7 @@ public class DealInfo {
     }
 
     public DealInfo(Product product) {
+        this.categoryId = product.getProductId();
         this.title = product.getTitle();
         this.brand = product.getBrand();
         this.detailUrl = product.getDetailUrl();

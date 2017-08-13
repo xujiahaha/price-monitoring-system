@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface UserCategoryRepository extends JpaRepository<UserCategory, Integer> {
 
-    @Query(value = "select category_id, count(user_id) as user_count from user_category group by category_id", nativeQuery = true)
+    @Query(value = "SELECT category_id, COUNT(user_id) AS user_count FROM user_category GROUP BY category_id ORDER BY user_count DESC", nativeQuery = true)
     List<Object[]> getCategoryUserCount();
 
 }

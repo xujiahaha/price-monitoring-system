@@ -1,7 +1,5 @@
 package demo.config;
 
-import demo.domain.CategorySeed;
-import demo.service.CategorySeedService;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
@@ -28,18 +26,10 @@ public class ProductSenderConfig {
     static final String QUEUE_NAME_PREFIX = "priceMonitoring.products.";
 
     @Autowired
-    private CategorySeedService categorySeedService;
-
-    @Autowired
     private ConfigurableApplicationContext context;
 
-
     @Bean
-    boolean createQueues() {
-//        List<CategorySeed> categorySeeds = this.categorySeedService.getAllCategorySeeds();
-//        for(CategorySeed categorySeed : categorySeeds) {
-//            this.context.getBeanFactory().registerSingleton(categorySeed.getSearchAlias(), new Queue(QUEUE_NAME+categorySeed.getSearchAlias(), true));
-//        }
+    boolean queues() {
         for(String category : CATEGORIES) {
             this.context.getBeanFactory().registerSingleton(category, new Queue(QUEUE_NAME_PREFIX+category, true));
         }

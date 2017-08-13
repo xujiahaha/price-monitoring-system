@@ -33,6 +33,11 @@
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
         <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
         </dependency>

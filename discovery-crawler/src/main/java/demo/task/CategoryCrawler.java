@@ -1,4 +1,4 @@
-package demo;
+package demo.task;
 
 import demo.domain.Category;
 import demo.domain.CategorySeed;
@@ -27,13 +27,10 @@ import java.util.*;
 public class CategoryCrawler {
 
     private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36";
-    private final String AUTH_USER = "bittiger";
-    private final String AUTH_PASSWORD = "cs504";
     private static final String AMAZON_URL = "https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias=aps&field-keywords=-4321";
     private static final String PRODUCT_LIST_URL = "https://www.amazon.com/s/ref=nb_sb_noss?url=<url>&field-keywords=-4321";
     private static final int CRAWLER_TIMEOUT = 80000; // in ms
     private List<String> proxyList;
-    private String PROXY_FILE_PATH = "proxylist.txt";
 
     private CategoryService categoryService;
     private CategorySeedService categorySeedService;
@@ -42,10 +39,6 @@ public class CategoryCrawler {
     public CategoryCrawler(CategoryService categoryService, CategorySeedService categorySeedService) {
         this.categoryService = categoryService;
         this.categorySeedService = categorySeedService;
-    }
-
-    public void init() {
-        initProxyList(PROXY_FILE_PATH);
     }
 
     private int categoryId = 1;
@@ -84,51 +77,9 @@ public class CategoryCrawler {
         return result;
     }
 
-    public void initProxyList(String proxyFilePath) {
-        proxyList = new ArrayList<String>();
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(proxyFilePath));
-            String line;
-            while((line = reader.readLine()) != null) {
-                proxyList.add(line.split(",")[0]);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.setProperty("socksProxyPort", "61336"); // set socks proxy port
-        System.setProperty("http.proxyUser", AUTH_USER);
-        System.setProperty("http.proxyPassword", AUTH_PASSWORD);
-        Authenticator.setDefault(
-                new Authenticator() {
-                    @Override
-                    public PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(
-                                AUTH_USER, AUTH_PASSWORD.toCharArray());
-                    }
-                }
-        );
-    }
-
     public void setProxyHost() {
         Random rand = new Random();
         System.setProperty("socksProxyHost", proxyList.get(rand.nextInt(proxyList.size()))); // set socks proxy server
-    }
-
-    public void testProxy() {
-
-        String test_url = "http://www.toolsvoid.com/what-is-my-ip-address";
-        try {
-            HashMap<String,String> headers = new HashMap<String,String>();
-            headers.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-            headers.put("Accept-Language", "en-US,en;q=0.8");
-            Document doc = Jsoup.connect(test_url).headers(headers).userAgent(USER_AGENT).timeout(CRAWLER_TIMEOUT).get();
-            String iP = doc.select("body > section.articles-section > div > div > div > div.col-md-8.display-flex > div > div.table-responsive > table > tbody > tr:nth-child(1) > td:nth-child(2) > strong").first().text(); //get used IP.
-            System.out.println("IP-Address: " + iP);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private Map<String, String> getHeaders() {

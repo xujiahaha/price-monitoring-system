@@ -8,6 +8,6 @@ spring:
 
   datasource:
       url: jdbc:mysql://localhost:3306/amazon_price_monitoring_db?verifyServerCertificate=false&useSSL=false&requireSSL=false
-      username: root
-      password: xidianxujia1991
+      username: username
+      password: password
       driver-class-name: com.mysql.jdbc.Driver
