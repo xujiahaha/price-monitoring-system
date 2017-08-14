@@ -33,18 +33,46 @@ public class ProductCrawlerScheduler {
     private int index = 0;
 
 
+    private int high = 1;
+    private int med = 1;
+    private int low = 1;
+
+
     @Scheduled(fixedRate = 10000)
-    public void schedule(){
+    public void scheduleHighPriority(){
+        log.info("Scheduling high priority category for {} time", high++);
+        List<CategorySeed> categorySeeds = getCategorySeeds(1);
+        for(CategorySeed categorySeed : categorySeeds) {
+            distribute(categorySeed);
+        }
+    }
+
+    @Scheduled(fixedRate = 20000)
+    public void scheduleMedPriority(){
+        log.info("Scheduling med priority category for {} time", med++);
+        List<CategorySeed> categorySeeds = getCategorySeeds(2);
+        for(CategorySeed categorySeed : categorySeeds) {
+            distribute(categorySeed);
+        }
+    }
+
+    @Scheduled(fixedRate = 30000)
+    public void scheduleLowPriority(){
+        log.info("Scheduling low priority category for {} time", low++);
         List<CategorySeed> categorySeeds = getCategorySeeds(3);
         for(CategorySeed categorySeed : categorySeeds) {
-            boolean success;
-            do {
-                if(index == CRAWLER_URL.length) {
-                    index = 0;
-                }
-                success = this.distributionService.sendCategorySeed(CRAWLER_URL[index++], categorySeed);
-            } while (!success);
+            distribute(categorySeed);
         }
+    }
+
+    private void distribute(CategorySeed categorySeed) {
+        boolean success;
+        do {
+            if(index == CRAWLER_URL.length) {
+                index = 0;
+            }
+            success = this.distributionService.sendCategorySeed(CRAWLER_URL[index++], categorySeed);
+        } while (!success);
     }
 
     private List<CategorySeed> getCategorySeeds(int priority) {

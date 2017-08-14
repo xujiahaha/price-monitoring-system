@@ -11,9 +11,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by jiaxu on 8/9/17.
@@ -22,40 +19,28 @@ import java.util.Map;
 public class DealSenderConfig {
 
     static final String EXCHANGE_NAME = "priceMonitoring.deals";
-//    static final String[] CATEGORIES = {"appliances", "baby-products", "beauty", "computers", "electronics", "office-products"};
-    static final String[] CATEGORIES = {"5", "9", "10", "25"};
-    static final String QUEUE_NAME_PREFIX = "priceMonitoring.deals.";
+    static final String OUTPUT_QUEUE_NAME = "priceMonitoring.deals.all";
 
 
     @Autowired
     private ConfigurableApplicationContext context;
 
+
     @Bean
-    boolean queues() {
-        for(String category : CATEGORIES) {
-            this.context.getBeanFactory().registerSingleton(category, new Queue(QUEUE_NAME_PREFIX+category, true));
-        }
+    boolean createQueue() {
+        this.context.getBeanFactory().registerSingleton("price.reduced", new Queue(OUTPUT_QUEUE_NAME, true));
         return true;
     }
 
 
     @Bean
-    List<Binding> bindings() {
-        List<Binding> bindings = new ArrayList<>();
-        Map<String, Queue> queues = this.context.getBeansOfType(Queue.class);
-        for(Map.Entry<String, Queue> entry: queues.entrySet()) {
-            String routingKey = entry.getKey();
-            Queue queue = entry.getValue();
-            bindings.add(BindingBuilder.bind(queue).to(topicExchange()).with(routingKey));
-        }
-        return bindings;
+    DirectExchange directExchange() {
+        return new DirectExchange(EXCHANGE_NAME);
     }
 
-
-
     @Bean
-    TopicExchange topicExchange() {
-        return new TopicExchange(EXCHANGE_NAME);
+    Binding binding1() {
+        return BindingBuilder.bind(this.context.getBeansOfType(Queue.class).get("price.reduced")).to(directExchange()).with("price.reduced");
     }
 
     @Bean
@@ -76,12 +61,10 @@ public class DealSenderConfig {
         return new Jackson2JsonMessageConverter();
     }
 
-
     public RabbitTemplate rabbitTemplate() {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory());
-        rabbitTemplate.setExchange(topicExchange().getName());
+        rabbitTemplate.setExchange(directExchange().getName());
         rabbitTemplate.setMessageConverter(jackson2JsonMessageConverter());
         return rabbitTemplate;
     }
-
 }

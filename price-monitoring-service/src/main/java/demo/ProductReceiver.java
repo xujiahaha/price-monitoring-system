@@ -56,7 +56,7 @@ public class ProductReceiver {
                 // if price reduced, send deal info to price reduced queue
                 if(latestPrice < lastPrice) {
                     DealInfo dealInfo = new DealInfo(latestProduct);
-                    this.dealSender.sendDealToPriceReducedQueue(String.valueOf(productInfo.getCategoryId()), dealInfo);
+                    this.dealSender.sendDealToPriceReducedQueue(dealInfo);
                 }
             }
         } else {  // Not existed in database

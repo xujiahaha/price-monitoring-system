@@ -25,7 +25,7 @@ public class CategorySeedDistributionServiceImpl implements CategorySeedDistribu
     @HystrixCommand(fallbackMethod = "sendRequestToCrawlerFallback")
     @Override
     public boolean sendCategorySeed(String crawlerLocation, CategorySeed categorySeed) {
-        log.info("sending {} request to {}", categorySeed.getCategoryTitle(), crawlerLocation);
+        System.out.println("sending " + categorySeed.getCategoryTitle() + " to " + crawlerLocation);
         this.restTemplate.postForLocation(crawlerLocation, categorySeed);
         return true;
     }

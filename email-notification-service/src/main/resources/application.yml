@@ -11,6 +11,20 @@ spring:
       username: username
       password: password
       driver-class-name: com.mysql.jdbc.Driver
+  mail:
+    host: smtp-mail.outlook.com
+    port: 587
+    username: username
+    password: password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
 
 server:
   port: 9001

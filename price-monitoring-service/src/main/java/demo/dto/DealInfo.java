@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class DealInfo {
 
-    private String categoryId;
+    private int categoryId;
     private String title;
     private String brand;
     private String detailUrl;
@@ -22,7 +22,7 @@ public class DealInfo {
     }
 
     public DealInfo(Product product) {
-        this.categoryId = product.getProductId();
+        this.categoryId = product.getCategoryId();
         this.title = product.getTitle();
         this.brand = product.getBrand();
         this.detailUrl = product.getDetailUrl();

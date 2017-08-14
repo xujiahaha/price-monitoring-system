@@ -1,4 +1,4 @@
-package demo;
+package demo.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +10,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class DealInfo {
 
-    private String categoryId;
+    private int categoryId;
     private String title;
     private String brand;
     private String detailUrl;

@@ -24,8 +24,8 @@ public class DealSender {
         this.rabbitTemplate = dealSenderConfig.rabbitTemplate();
     }
 
-    public void sendDealToPriceReducedQueue(String routingKey, DealInfo dealInfo) {
-        log.debug("sending deals to price reduced queue...");
-        this.rabbitTemplate.convertAndSend(routingKey, dealInfo);
+    public void sendDealToPriceReducedQueue(DealInfo dealInfo) {
+        log.info("sending deals to price reduced queue...");
+        this.rabbitTemplate.convertAndSend("price.reduced", dealInfo);
     }
 }
