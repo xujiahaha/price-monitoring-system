@@ -38,7 +38,7 @@ public class ProductCrawlerScheduler {
     private int low = 1;
 
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedDelay = 10000, initialDelay = 1000) // for demo purpose
     public void scheduleHighPriority(){
         log.info("Scheduling high priority category for {} time", high++);
         List<CategorySeed> categorySeeds = getCategorySeeds(1);
@@ -47,7 +47,7 @@ public class ProductCrawlerScheduler {
         }
     }
 
-    @Scheduled(fixedRate = 20000)
+    @Scheduled(fixedDelay = 20000, initialDelay = 5000) // for demo purpose
     public void scheduleMedPriority(){
         log.info("Scheduling med priority category for {} time", med++);
         List<CategorySeed> categorySeeds = getCategorySeeds(2);
@@ -56,7 +56,7 @@ public class ProductCrawlerScheduler {
         }
     }
 
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedDelay = 30000, initialDelay = 8000) // for demo purpose
     public void scheduleLowPriority(){
         log.info("Scheduling low priority category for {} time", low++);
         List<CategorySeed> categorySeeds = getCategorySeeds(3);

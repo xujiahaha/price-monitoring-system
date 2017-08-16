@@ -35,7 +35,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = getProductByProductId(productId);
         product.setOldPrice(oldPrice);
         product.setPrice(price);
-        product.setDiscountPercent(getDiscountPercent(product.getOldPrice(), price));
+        product.setDiscountPercent(getDiscountPercent(oldPrice, price));
         product.setLastUpdateTime(System.currentTimeMillis());
         return this.productRepository.save(product);
     }

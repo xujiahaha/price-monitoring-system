@@ -1,0 +1,1 @@
+java -jar deal-service/target/deal-service-1.0-SNAPSHOT.jar

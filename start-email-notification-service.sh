@@ -1,0 +1,1 @@
+java -jar email-notification-service/target/email-notification-service-1.0-SNAPSHOT.jar

@@ -19,19 +19,16 @@ public class DiscoveryCrawlerApplication implements CommandLineRunner{
     @Autowired
     private CategoryCrawlerInitializer categoryCrawlerInitializer;
 
-    private String PROXY_FILE_PATH = "product-crawler/proxylist.txt";
-
     public static void main(String[] args) {
-//        if(args.length < 1) {
-//            System.out.println("Usage: java -jar discoveryCrawler.jar <proxyFilePath>");
-//            return;
-//        }
+        if(args.length < 1) {
+            System.out.println("Usage: java -jar discoveryCrawler.jar <proxyFilePath>");
+            return;
+        }
         SpringApplication.run(DiscoveryCrawlerApplication.class, args);
     }
 
     @Override
     public void run(String... strings) throws Exception {
-//        categoryCrawlerInitializer.init(strings[0]);
-        categoryCrawlerInitializer.init(PROXY_FILE_PATH);
+        categoryCrawlerInitializer.init(strings[0]);
     }
 }

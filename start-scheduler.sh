@@ -1,0 +1,1 @@
+java -jar product-crawler-scheduler/target/product-crawler-scheduler-1.0-SNAPSHOT.jar

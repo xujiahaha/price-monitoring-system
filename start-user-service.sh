@@ -1,0 +1,1 @@
+java -jar user-service/target/user-service-1.0-SNAPSHOT.jar

@@ -1,0 +1,1 @@
+java -jar price-monitoring-service/target/price-monitoring-service-1.0-SNAPSHOT.jar

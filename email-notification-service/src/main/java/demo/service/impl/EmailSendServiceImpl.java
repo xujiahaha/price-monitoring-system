@@ -19,6 +19,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * Created by jiaxu on 8/14/17.
@@ -45,18 +46,29 @@ public class EmailSendServiceImpl implements EmailSendService {
     @Autowired
     private UserCategoryService userCategoryService;
 
+    private List<SendEmailTaskInstance> futureTask = new ArrayList<>();
+    private long counter = 1;
+
     @Override
     public void sendToSubscribers(int categoryId, List<DealInfo> dealInfoList) {
         List<User> subscribers = getSubscribers(categoryId);
         String subject = createSubject(categoryId);
         String content = createContent(dealInfoList);
         SendEmailTask task = new SendEmailTask(subscribers, subject, content);
-        taskExecutor.submit(task);
+        Future<?> future = taskExecutor.submit(task);
+        log.info("Scheduled a email sender for category {}", categoryId);
+        SendEmailTaskInstance instance = new SendEmailTaskInstance(counter++, categoryId, task, future);
+        futureTask.add(instance);
+    }
+
+    @Override
+    public List<SendEmailTaskInstance> getFutureTask() {
+        return this.futureTask;
     }
 
     private String createSubject(int categoryId) {
         String categoryTitle = this.categoryService.getCategoryTitleById(categoryId);
-        return categoryTitle + SUBJECT_TEMPLATE;
+        return SUBJECT_TEMPLATE + categoryTitle;
     }
 
     private String createContent(List<DealInfo> dealInfoList) {
@@ -105,17 +117,33 @@ public class EmailSendServiceImpl implements EmailSendService {
                 try {
                     MimeMessageHelper helper = new MimeMessageHelper(message, true);
                     helper.setTo(user.getEmail());
+                    helper.setReplyTo(user.getEmail());
                     helper.setSubject(subject);
                     helper.setText(text);
-                    log.info("Email has been sent to {}", user.getEmail());
+                    log.info("Sending email to {}", user.getEmail());
                 } catch (MessagingException e) {
                     e.printStackTrace();
-                    log.warn("Fail to send email to {}", user.getEmail());
+                    log.error("Fail to send email to {}", user.getEmail());
                 }
 
                 javaMailSender.send(message);
             }
 
+        }
+    }
+
+    @Data
+    public class SendEmailTaskInstance {
+        private long id;
+        private int categoryId;
+        private SendEmailTask sendEmailTask;
+        private Future<?> future;
+
+        public SendEmailTaskInstance(long id, int categoryId, SendEmailTask sendEmailTask, Future<?> future) {
+            this.id = id;
+            this.categoryId = categoryId;
+            this.sendEmailTask = sendEmailTask;
+            this.future = future;
         }
     }
 }

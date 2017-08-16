@@ -54,9 +54,9 @@ public class CategorySeedServiceImpl implements CategorySeedService {
         /*
         * TODO: dynamically update userCount threshold for prioritize
         * */
-        if(userCount > 100) {
+        if(userCount > 4) {
             categorySeed.setPriority(1);
-        }else if (userCount > 50 && userCount <= 100) {
+        }else if (userCount > 2 && userCount <= 4) {
             categorySeed.setPriority(2);
         }else {
             categorySeed.setPriority(3);

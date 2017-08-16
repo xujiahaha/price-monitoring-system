@@ -1,0 +1,1 @@
+java -jar discovery-crawler/target/discovery-crawler-1.0-SNAPSHOT.jar /Users/jiaxu/Desktop/price-monitoring-system/proxylist.txt

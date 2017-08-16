@@ -21,7 +21,7 @@ public class Scheduler {
     }
 
 //    @Scheduled(cron = "0 6 * * *") // update priority every day at 6am
-    @Scheduled(fixedRate = 6000)
+    @Scheduled(fixedRate = 10000)  // for demo purpose
     public void updateCategoryPriority(){
         this.categorySeedService.updateCategoryPriority();
     }

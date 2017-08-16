@@ -1,0 +1,1 @@
+java -jar -Dserver.port=8002 product-crawler/target/product-crawler-1.0-SNAPSHOT.jar /Users/jiaxu/Desktop/price-monitoring-system/proxylist2.txt
